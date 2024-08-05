@@ -1,11 +1,25 @@
-use serde::{Deserialize, Serialize};
+use serde::Serialize;
 
 use crate::{
     consts::{EXECUTE_URL, RUNTIMES_URL},
     errors::Errors,
-    lang::{Language, Response},
+    lang::{ApiResponse, Language, Response},
 };
 
+/// `POST` /api/v2/execute This endpoint requests execution of some arbitrary code.
+///
+/// language (required) The language to use for execution, must be a string and must be installed.
+/// version (required) The version of the language to use for execution, must be a string containing a SemVer selector for the version or the specific version number to use.
+/// files (required) An array of files containing code or other data that should be used for execution. The first file in this array is considered the main file.
+/// files[].name (optional) The name of the file to upload, must be a string containing no path or left out.
+/// files[].content (required) The content of the files to upload, must be a string containing text to write.
+/// files[].encoding (optional) The encoding scheme used for the file content. One of base64, hex or utf8. Defaults to utf8.
+/// stdin (optional) The text to pass as stdin to the program. Must be a string or left out. Defaults to blank string.
+/// args (optional) The arguments to pass to the program. Must be an array or left out. Defaults to [].
+/// compile_timeout (optional) The maximum time allowed for the compile stage to finish before bailing out in milliseconds. Must be a number or left out. Defaults to 10000 (10 seconds).
+/// run_timeout (optional) The maximum time allowed for the run stage to finish before bailing out in milliseconds. Must be a number or left out. Defaults to 3000 (3 seconds).
+/// compile_memory_limit (optional) The maximum amount of memory the compile stage is allowed to use in bytes. Must be a number or left out. Defaults to -1 (no limit)
+/// run_memory_limit (optional) The maximum amount of memory the run stage is allowed to use in bytes. Must be a number or left out. Defaults to -1 (no limit)#[derive(Serialize)]
 #[derive(Serialize)]
 struct Data {
     language: String,
@@ -36,7 +50,7 @@ impl Client {
                 (lang.language == self.language.to_owned())
                     | (lang.aliases.contains(&self.language))
             })
-            .map_or(None, |l| Some(l.version.clone())))
+            .and_then(|l| Some(l.version.clone())))
     }
 
     pub async fn execute(self) -> Result<Response, Errors> {
@@ -45,11 +59,11 @@ impl Client {
             Ok(None) => return Err(Errors::InvalidLanguage),
             Ok(Some(v)) => v,
         };
-        let mut map_files = vec![FileData {
+        let mut files = vec![FileData {
             name: None,
             content: self.main_file,
         }];
-        map_files.extend(
+        files.extend(
             self.add_files
                 .iter()
                 .map(|code| FileData {
@@ -65,16 +79,20 @@ impl Client {
             .json(&Data {
                 language: self.language,
                 version,
-                files: map_files,
+                files,
             })
             .send()
             .await;
-        let Ok(data) = data else {
-            return Err(Errors::BadRequest);
+        let data = match data {
+            Err(e) => return Err(Errors::Unknown(e.to_string())),
+            Ok(res) => res,
         };
-        data.json::<Response>()
-            .await
-            .map_err(|err| Errors::Unknown(err.to_string()))
+
+        match data.json::<ApiResponse>().await {
+            Ok(ApiResponse::Good(response)) => Ok(response),
+            Ok(ApiResponse::Error(error)) => Err(Errors::Unknown(error.message().to_owned())),
+            Err(err) => Err(Errors::Unknown(err.to_string())),
+        }
     }
 }
 
@@ -116,7 +134,7 @@ impl ClientBuilder {
 
     pub fn build(self) -> Result<Client, Errors> {
         let language = self.language.ok_or(Errors::MissingLang)?;
-        let main_file = self.main_file.ok_or(Errors::MissingCode)?;
+        let main_file = self.main_file.ok_or(Errors::MissingMain)?;
 
         let http_client = reqwest::ClientBuilder::new()
             .user_agent("fewwis-bot/@romancitodev")
