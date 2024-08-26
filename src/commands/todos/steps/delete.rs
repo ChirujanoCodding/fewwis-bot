@@ -22,7 +22,7 @@ pub async fn delete(
     #[name_localized("es-ES", "tarea")]
     #[description_localized("es-ES", "La tarea a eliminar")]
     #[autocomplete = "super::task_autocompleter"]
-    task: i32,
+    task: i32, // The autocompleter just return the value of itself.
 ) -> Result<(), Error> {
     let db = &ctx.data().db;
 

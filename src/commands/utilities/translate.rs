@@ -12,10 +12,10 @@ pub async fn translate_ctx_menu(
     ctx: Context<'_>,
     #[description = "The text to translate"] msg: serenity::Message,
 ) -> Result<(), Error> {
-    let text = msg.content;
+    let text = msg.content.to_string();
     let response = get_translation(text.clone()).await?;
 
-    let reply = CreateReply::new();
+    let reply = CreateReply::default();
     let embed = CreateEmbed::new();
 
     ctx.send(
@@ -23,11 +23,11 @@ pub async fn translate_ctx_menu(
             embed
                 .title("📄 Google translate (joke i don't have money to pay that)")
                 .fields([
-                    ("📤 Original Text: ", text, true),
+                    ("📤 Original Text: ", text, false),
                     (
                         "✨ **Translated Text**",
                         response.data.translated_text,
-                        true,
+                        false,
                     ),
                 ])
                 .color(Color::BLURPLE),
@@ -45,7 +45,7 @@ pub async fn translate(
 ) -> Result<(), Error> {
     let response = get_translation(text.clone()).await?;
 
-    let reply = CreateReply::new();
+    let reply = CreateReply::default();
     let embed = CreateEmbed::new();
 
     ctx.send(
@@ -53,11 +53,11 @@ pub async fn translate(
             embed
                 .title("📄 Google translate (joke i don't have money to pay that)")
                 .fields([
-                    ("📤 Original Text: ", text, true),
+                    ("📤 Original Text: ", text, false),
                     (
                         "✨ **Translated Text**",
                         response.data.translated_text,
-                        true,
+                        false,
                     ),
                 ])
                 .color(Color::BLURPLE),

@@ -1,11 +1,9 @@
-#![feature(exclusive_range_pattern)]
-
 use ::serenity::gateway::ActivityData;
 use consts::OWNER_BOT;
 use helper::handle_error;
 use poise::serenity_prelude as serenity;
 use sea_orm::{ConnectionTrait, Database, Statement};
-use std::collections::HashSet;
+use std::{collections::HashSet, sync::Arc};
 use tracing::{error, info};
 mod api;
 mod commands;
@@ -22,10 +20,13 @@ async fn main() {
         std::process::exit(0);
     };
 
+    let token = dotenvy::var("BOT_TOKEN").expect("❌ Missing BOT_TOKEN in .env file");
+
+    let intents = serenity::GatewayIntents::all();
+
     tracing_subscriber::fmt::init();
-    poise::FrameworkBuilder::default()
-        .token(dotenvy::var("BOT_TOKEN").expect("❌ Missing BOT_TOKEN in .env file"))
-        .intents(serenity::GatewayIntents::all())
+
+    let framework = poise::Framework::builder()
         .options(poise::FrameworkOptions {
             commands: commands::all(),
             owners: HashSet::from([OWNER_BOT.into()]),
@@ -43,13 +44,20 @@ async fn main() {
                 )
             },
             on_error: |error| Box::pin(handle_error(error)),
+            prefix_options: poise::PrefixFrameworkOptions {
+                prefix: Some("!".into()),
+                edit_tracker: Some(Arc::new(poise::EditTracker::for_timespan(
+                    std::time::Duration::from_secs(3600),
+                ))),
+                ..Default::default()
+            },
             ..Default::default()
         })
         .setup(move |ctx, _ready, fm| {
             Box::pin(async move {
                 info!("👷 Setting up the bot...");
                 ctx.set_activity(Some(ActivityData::playing("Casio Theme 4 life")));
-                info!("🕹 Setted activity.");
+                info!("🕹  Setted activity.");
                 let commands = &fm.options().commands;
                 let create_commands = poise::builtins::create_application_commands(commands);
 
@@ -57,10 +65,10 @@ async fn main() {
                 serenity::Command::set_global_commands(ctx, create_commands).await?;
                 info!("📤 Registered commands.");
                 info!("📡 Connecting to database...");
-                let (db_url, db_name) = (
-                    dotenvy::var("DATABASE_URL")?,
-                    dotenvy::var("DATABASE_NAME")?,
-                );
+
+                let db_url = dotenvy::var("DATABASE_URL")?;
+                let db_name = dotenvy::var("DATABASE_NAME")?;
+
                 let connection = Database::connect(db_url.clone()).await?;
                 connection
                     .execute(Statement::from_string(
@@ -74,7 +82,12 @@ async fn main() {
                 Ok(Data::new(connection))
             })
         })
-        .run()
+        .build();
+
+    let mut client = serenity::ClientBuilder::new(&token, intents)
+        .framework(framework)
         .await
         .unwrap();
+
+    client.start().await.unwrap();
 }

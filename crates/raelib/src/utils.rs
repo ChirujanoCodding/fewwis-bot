@@ -3,7 +3,8 @@ use std::borrow::Cow;
 use crate::http::definitions::{Definition, Word};
 
 pub(crate) fn parse_request(request: String) -> Word {
-    let dom = unsafe { tl::parse_owned(request.clone(), tl::ParserOptions::default()).unwrap() };
+    // SAFETY: Reference to [tl::parse_owned].
+    let dom = unsafe { tl::parse_owned(request, tl::ParserOptions::default()).unwrap() };
     let parser = dom.get_ref();
     let (word, variant) = extract_header(parser);
     let definitions = parser

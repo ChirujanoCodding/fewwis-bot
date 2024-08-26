@@ -32,7 +32,7 @@ impl From<Colors> for Color {
 pub async fn handle_error(error: poise::FrameworkError<'_, Data, Error>) {
     match error {
         poise::FrameworkError::Command { error, ctx, .. } => {
-            let reply = CreateReply::new();
+            let reply = CreateReply::default();
             let embed = CreateEmbed::new();
             ctx.send(
                 reply
@@ -48,7 +48,7 @@ pub async fn handle_error(error: poise::FrameworkError<'_, Data, Error>) {
             .unwrap();
         }
         poise::FrameworkError::CommandCheckFailed { error, ctx, .. } => {
-            let reply = CreateReply::new();
+            let reply = CreateReply::default();
             let embed = CreateEmbed::new();
             ctx.send(
                 reply
@@ -106,7 +106,7 @@ impl Paginator {
     }
 
     pub async fn paginate(&mut self, ctx: Context<'_>) -> Result<(), Error> {
-        let reply = CreateReply::new();
+        let reply = CreateReply::default();
         let buttons = self.create_buttons();
 
         let initial = ctx

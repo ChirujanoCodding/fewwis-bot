@@ -48,14 +48,14 @@ pub async fn play_buttons(ctx: Context<'_>) -> Result<(), Error> {
     ctx.defer().await?;
     let msg = ctx
         .send(
-            CreateReply::new().embed(
+            CreateReply::default().embed(
                 CreateEmbed::new()
                     .title("⏳ Starting game...")
                     .color(Colors::White),
             ),
         )
         .await?;
-    let reply = CreateReply::new();
+    let reply = CreateReply::default();
     let embed = CreateEmbed::new();
     let db = &ctx.data().db;
     let (user_id, guild_id) = (ctx.author().id, ctx.guild_id().unwrap());
@@ -152,7 +152,7 @@ pub async fn play_buttons(ctx: Context<'_>) -> Result<(), Error> {
             } else {
                 Colors::Red
             })
-            .field("☝️ Definition:", format!("> {}", definitions), true);
+            .field("☝️ Definition:", format!(">  {}", definitions), true);
         reason = if is_correct {
             Reason::Correct
         } else {
@@ -248,7 +248,7 @@ pub async fn stats_buttons(ctx: Context<'_>) -> Result<(), Error> {
     ctx.defer().await?;
     let msg = ctx
         .send(
-            CreateReply::new().embed(
+            CreateReply::default().embed(
                 CreateEmbed::new()
                     .title("⏳ Fetching data...")
                     .color(Colors::White),
@@ -276,7 +276,7 @@ pub async fn stats_buttons(ctx: Context<'_>) -> Result<(), Error> {
 
     msg.edit(
         ctx,
-        CreateReply::new().embed(
+        CreateReply::default().embed(
             CreateEmbed::new()
                 .title(format!("🏁 Quiz stats of {}", ctx.author().name))
                 .color(model::Color::BLURPLE)

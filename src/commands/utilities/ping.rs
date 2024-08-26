@@ -37,7 +37,7 @@ pub async fn ping(
     let after = Instant::now();
     let database_ping = after.duration_since(before);
 
-    let reply = CreateReply::new();
+    let reply = CreateReply::default();
     let embed = CreateEmbed::new();
     ctx.send(
         reply

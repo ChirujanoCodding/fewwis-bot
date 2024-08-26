@@ -19,18 +19,18 @@ serde_json = "1.0.107"
 tokio = { version = "1.32.0", features = ["rt-multi-thread"] }
 tracing = { version = "0.1.37", features = ["log"] }
 tracing-subscriber = "0.3.17"
+pistones = "0.1.1"
 raelib = { path = "./crates/raelib" }
+lazy-regex = "3.3.0"
 
 [dependencies.poise]
-git = "https://github.com/serenity-rs/poise"
-branch = "serenity-next"
+version = "0.6.1"
 
 [dependencies.serenity]
-git = "https://github.com/serenity-rs/serenity"
-branch = "next"
+version = "0.12.2"
 
 [workspace]
-members = [".", "migration", "crates/raelib", "crates/piston"]
+members = [".", "migration", "crates/raelib"]
 
 [profile.dev]
 opt-level = 1
