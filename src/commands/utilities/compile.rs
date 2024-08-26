@@ -38,7 +38,12 @@ pub async fn compile(
 
     let embed = CreateEmbed::new()
         .title(format!(
-            "👨‍🍳 Your code is cooked! {} ({})",
+            "{} Your code is cooked! {} ({})",
+            if data.code() == 0 {
+                "👩‍🍳"
+            } else {
+                "💀"
+            },
             response.language(),
             response.version()
         ))
