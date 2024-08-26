@@ -49,14 +49,14 @@ pub async fn play_flags(ctx: Context<'_>) -> Result<(), Error> {
     ctx.defer().await?;
     let msg = ctx
         .send(
-            CreateReply::new().embed(
+            CreateReply::default().embed(
                 CreateEmbed::new()
                     .title("⏳ Starting game...")
                     .color(Colors::White),
             ),
         )
         .await?;
-    let reply = CreateReply::new();
+    let reply = CreateReply::default();
     let embed = CreateEmbed::new();
     let db = &ctx.data().db;
     let (user_id, guild_id) = (ctx.author().id, ctx.guild_id().unwrap());
@@ -219,7 +219,7 @@ pub async fn stats_flags(ctx: Context<'_>) -> Result<(), Error> {
     ctx.defer().await?;
     let msg = ctx
         .send(
-            CreateReply::new().embed(
+            CreateReply::default().embed(
                 CreateEmbed::new()
                     .title("⏳ Fetching data...")
                     .color(Colors::White),
@@ -256,7 +256,7 @@ pub async fn stats_flags(ctx: Context<'_>) -> Result<(), Error> {
 
     msg.edit(
         ctx,
-        CreateReply::new().embed(
+        CreateReply::default().embed(
             CreateEmbed::new()
                 .title(format!("🏁 Quiz stats of {}", ctx.author().name))
                 .color(model::Color::BLURPLE)

@@ -23,8 +23,7 @@ pub async fn meme(
     #[description_localized("es-ES", "Subreddit a fetchear")]
     subreddit: Option<String>,
 ) -> Result<(), Error> {
-    let reply = CreateReply::new();
-
+    let reply = CreateReply::default();
     ctx.defer_ephemeral().await?;
     let initial = ctx
         .send(

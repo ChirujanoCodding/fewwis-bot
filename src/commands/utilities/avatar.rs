@@ -10,7 +10,7 @@ pub async fn avatar_ctx_menu(
 ) -> Result<(), Error> {
     let user = msg.author;
 
-    let reply = CreateReply::new();
+    let reply = CreateReply::default();
     let embed = CreateEmbed::new();
 
     ctx.send(
@@ -30,7 +30,7 @@ pub async fn avatar(
     #[description = "The member to fetch"] user: Option<serenity::User>,
 ) -> Result<(), Error> {
     let user = user.unwrap_or(ctx.author().clone());
-    let reply = CreateReply::new();
+    let reply = CreateReply::default();
     let embed = CreateEmbed::new();
 
     ctx.send(

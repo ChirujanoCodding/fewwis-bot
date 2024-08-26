@@ -3,6 +3,8 @@ use crate::{
     types::{Context, Error},
 };
 
+use crate::serenity::AutocompleteChoice;
+
 mod add;
 mod delete;
 mod update;
@@ -10,7 +12,7 @@ mod update;
 async fn task_autocompleter(
     ctx: Context<'_>,
     partial: &str,
-) -> impl Iterator<Item = poise::AutocompleteChoice<i32>> {
+) -> impl Iterator<Item = AutocompleteChoice> {
     let db = &ctx.data().db;
     let post = get_post(db, ctx.channel_id().get()).await.unwrap();
 
@@ -18,6 +20,7 @@ async fn task_autocompleter(
 
     choices
         .iter()
+        .filter(|c| c.description.contains(partial))
         .map(|choice| {
             let choice = choice.clone();
             let description = format!(
@@ -25,9 +28,8 @@ async fn task_autocompleter(
                 if choice.completed != 0 { "✅" } else { "⏳" },
                 choice.description
             );
-            poise::AutocompleteChoice::new_with_value(description, choice.id)
+            AutocompleteChoice::new(description, choice.id)
         })
-        .filter(move |t| t.label.contains(partial))
         .collect::<Vec<_>>()
         .into_iter()
 }

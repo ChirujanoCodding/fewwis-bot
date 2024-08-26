@@ -32,7 +32,7 @@ pub async fn update(
         return Err("Error fetching guild channel.".into());
     };
 
-    let reply = CreateReply::new();
+    let reply = CreateReply::default();
     let embed = CreateEmbed::new();
 
     let forum_tag_id = ForumTagId::from(status as u64);

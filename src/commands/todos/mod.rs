@@ -1,6 +1,5 @@
 use poise::serenity_prelude as serenity;
 use serenity::all::ChannelType;
-use std::num::NonZeroU64;
 use tracing::error;
 
 use crate::{
@@ -55,12 +54,7 @@ async fn is_forum_post(ctx: Context<'_>) -> Result<bool, Error> {
 }
 
 async fn on_private_guild(ctx: Context<'_>) -> Result<bool, Error> {
-    if !ctx
-        .guild_id()
-        .unwrap()
-        .as_inner()
-        .eq(&NonZeroU64::new(OWNER_GUILD).unwrap())
-    {
+    if ctx.guild_id().unwrap() != OWNER_GUILD {
         Err("Invalid guild".into())
     } else {
         Ok(true)

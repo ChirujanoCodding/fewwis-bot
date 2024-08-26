@@ -1,0 +1,5 @@
+[language-server.rust-analyzer.config.cachePriming]
+enable = false
+
+[language-server.rust-analyzer.cache]
+warmup = false

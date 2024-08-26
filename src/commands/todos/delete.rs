@@ -22,7 +22,7 @@ pub async fn delete(
     let force = force.unwrap_or_default();
 
     let db = &ctx.data().db;
-    let reply = CreateReply::new();
+    let reply = CreateReply::default();
     let embed = CreateEmbed::new();
     let row = serenity::CreateActionRow::Buttons(vec![
         serenity::CreateButton::new("confirm")
