@@ -1,3 +1,5 @@
+use std::time::Instant;
+
 use crate::{helper::Colors, Context, Error};
 use pistones::Client;
 
@@ -18,17 +20,20 @@ pub async fn compile(
         return Err("Error parsing the code.".into());
     };
 
+    let time = Instant::now();
     let Ok(data) = compile_code(lang, code).await else {
         return Err("Cannot compile the code dud".into());
     };
+    let elapsed = time.elapsed().as_millis();
 
-    let embed = create_result_embed(data);
+    let embed = create_result_embed(data, elapsed);
 
     ctx.send(reply.embed(embed)).await.unwrap();
 
     Ok(())
 }
 
+#[inline]
 async fn compile_code(
     lang: &str,
     code: &str,
@@ -44,7 +49,7 @@ fn parse_code(code: &str) -> Result<(&str, &str), Error> {
         })
 }
 
-fn create_result_embed(response: pistones::lang::Response) -> CreateEmbed {
+fn create_result_embed(response: pistones::lang::Response, elapsed: u128) -> CreateEmbed {
     let data = response.data();
     let success = data.code() == 0;
     let (emoji, color) = if success {
@@ -70,7 +75,9 @@ fn create_result_embed(response: pistones::lang::Response) -> CreateEmbed {
     if success {
         embed
             .description(description.to_string())
-            .footer(CreateEmbedFooter::new("compiled successfully"))
+            .footer(CreateEmbedFooter::new(format!(
+                "Compiled correctly | {elapsed}ms"
+            )))
     } else {
         embed.description(format!("Error: {}", response.data().output()))
     }
