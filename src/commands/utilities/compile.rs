@@ -16,19 +16,25 @@ pub async fn compile(
 ) -> Result<(), Error> {
     let reply = CreateReply::default();
 
+    let embed = loading_embed();
+
+    let msg = ctx.send(reply.clone().embed(embed)).await.unwrap();
+
     let Ok((lang, code)) = parse_code(&code) else {
+        msg.delete(ctx).await.unwrap();
         return Err("Error parsing the code.".into());
     };
 
     let time = Instant::now();
     let Ok(data) = compile_code(lang, code).await else {
+        msg.delete(ctx).await.unwrap();
         return Err("Cannot compile the code dud".into());
     };
     let elapsed = time.elapsed().as_millis();
 
     let embed = create_result_embed(data, elapsed);
 
-    ctx.send(reply.embed(embed)).await.unwrap();
+    msg.edit(ctx, reply.embed(embed)).await.unwrap();
 
     Ok(())
 }
@@ -47,6 +53,13 @@ fn parse_code(code: &str) -> Result<(&str, &str), Error> {
         .map_or(Err("Error parsing the code".into()), |(_, lang, code)| {
             Ok((lang, code))
         })
+}
+
+fn loading_embed() -> CreateEmbed {
+    CreateEmbed::new()
+        .title("⌛ Compiling...")
+        .description("This shouldn't take much time ;)")
+        .colour(Colors::White)
 }
 
 fn create_result_embed(response: pistones::lang::Response, elapsed: u128) -> CreateEmbed {
