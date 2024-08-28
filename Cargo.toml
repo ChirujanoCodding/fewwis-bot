@@ -19,7 +19,7 @@ serde_json = "1.0.107"
 tokio = { version = "1.32.0", features = ["rt-multi-thread"] }
 tracing = { version = "0.1.37", features = ["log"] }
 tracing-subscriber = "0.3.17"
-pistones = "0.1.1"
+pistones = "0.2.1"
 raelib = { path = "./crates/raelib" }
 lazy-regex = "3.3.0"
 

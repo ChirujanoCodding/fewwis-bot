@@ -1975,9 +1975,9 @@ dependencies = [
 
 [[package]]
 name = "pistones"
-version = "0.1.1"
+version = "0.2.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "27931c6bdd9442930eb1125233158b6302b001034f8b467f718d28e78f48d212"
+checksum = "036e98b0459c7eb67dc6591231cfb2d1e112214ec408f548fa2cc854806e95fe"
 dependencies = [
  "reqwest",
  "serde",

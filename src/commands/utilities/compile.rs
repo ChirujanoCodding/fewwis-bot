@@ -1,5 +1,5 @@
 use crate::{helper::Colors, Context, Error};
-use pistones::client::ClientBuilder;
+use pistones::Client;
 
 use ::serenity::builder::CreateEmbed;
 use poise::{CodeBlock, CreateReply};
@@ -18,7 +18,9 @@ pub async fn compile(
         return Err("Error parsing the code.".into());
     };
 
-    let data = compile_code(lang, code).await.unwrap();
+    let Ok(data) = compile_code(lang, code).await else {
+        return Err("Cannot compile the code dud".into());
+    };
 
     let embed = create_result_embed(data);
 
@@ -31,14 +33,8 @@ async fn compile_code(
     lang: &str,
     code: &str,
 ) -> Result<pistones::lang::Response, pistones::error::Error> {
-    let client = ClientBuilder::new()
-        .set_lang(lang)
-        .set_main_file(code)
-        .user_agent("@romancitodev/fewwis-bot")
-        .build()
-        .unwrap();
-
-    client.execute().await
+    let client = Client::new().await?.user_agent("@romancitodev")?;
+    client.run(lang, code).await
 }
 
 fn parse_code(code: &str) -> Result<(&str, &str), Error> {
